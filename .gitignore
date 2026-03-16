@@ -1,0 +1,11 @@
+# Compilati
+*.o
+*.a
+*.out
+gameboy
+
+# Build
+build/
+bin/
+roms/*gb
+roms/*gbc
