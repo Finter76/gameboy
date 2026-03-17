@@ -407,20 +407,56 @@ void op_ld_a_a(CPU *cpu, Bus *bus) {
 
 // 0x80 - 0xBF (ALU)
 void op_add_a_b(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu_alu(cpu, 
+            cpu->AF.bytes.hi, 
+            cpu->BC.bytes.hi,
+            ALU_ADD);
+    cpu->cycles += 4;
 }
 void op_add_a_c(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu_alu(cpu, 
+            cpu->AF.bytes.hi, 
+            cpu->BC.bytes.lo,
+            ALU_ADD);
+    cpu->cycles += 4;
 }
 void op_add_a_d(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu_alu(cpu, 
+            cpu->AF.bytes.hi, 
+            cpu->DE.bytes.hi,
+            ALU_ADD);
+    cpu->cycles += 4;
 }
 void op_add_a_e(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu_alu(cpu, 
+            cpu->AF.bytes.hi, 
+            cpu->DE.bytesi.lo,
+            ALU_ADD);
+    cpu->cycles += 4;
 }
 void op_add_a_h(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu_alu(cpu, 
+            cpu->AF.bytes.hi, 
+            cpu->HL.bytes.hi,
+            ALU_ADD);
+    cpu->cycles += 4;
 }
 void op_add_a_l(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu_alu(cpu, 
+            cpu->AF.bytes.hi, 
+            cpu->HL.bytes.lo,
+            ALU_ADD);
+    cpu->cycles += 4;
 }
 void op_add_a_hl_ind(CPU *cpu, Bus *bus) {
+
 }
 void op_add_a_a(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu_alu(cpu, 
+            cpu->AF.bytes.hi, 
+            cpu->AF.bytes.hi,
+            ALU_ADD);
+    cpu->cycles += 4;
 }
 void op_adc_a_b(CPU *cpu, Bus *bus) {
 }

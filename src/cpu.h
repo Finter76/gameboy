@@ -10,6 +10,9 @@ typedef struct Bus Bus;
 #define FLAG_H 0x20 // 5 h Half Carry flag (BCD)
 #define FLAG_C 0x10 // 4 c Carry flag
 
+typedef enum { ALU_ADD, ALU_ADC, ALU_SUB, ALU_SBC, 
+    ALU_AND, ALU_OR, ALU_XOR, ALU_CP } ALU_OP;
+
 typedef union {
     u16 full;
     struct {
@@ -52,4 +55,6 @@ u8 cpu_read(CPU *cpu, Bus *bus, u16 address);
 void cpu_write(CPU *cpu, Bus *bus, u16 address, u8 value);
 
 u16 cpu_read_word(CPU *cpu, Bus *bus);
+
+u8 cpu_alu(CPU *cpu, u8 a, u8 b, ALU_OP op);
 #endif
