@@ -2,17 +2,18 @@
 #include "bus.h"
 #include "types.h"
 #include "opcodes.h"
+#include <stdbool.h>
 
 // 0x00 - 0x0F
 void op_nop(CPU *cpu, Bus *bus){
-    cpu->cycles += 4; 
+    cpu->cycles += 4;
 }
 void op_ld_bc_n16(CPU *cpu, Bus *bus){
     cpu->BC.full = cpu_read_word(cpu, bus);
     cpu->cycles += 12;
 }
 void op_ld_bc_ind_a(CPU *cpu, Bus *bus){
-    
+
 }
 void op_inc_bc(CPU *cpu, Bus *bus){
     cpu->BC.full++;
@@ -24,6 +25,9 @@ void op_inc_b(CPU *cpu, Bus *bus){
 void op_dec_b(CPU *cpu, Bus *bus) {
 }
 void op_ld_b_n8(CPU *cpu, Bus *bus) {
+    u8 val = cpu_read(cpu, bus, cpu->PC);
+    cpu->BC.bytes.hi = val;
+    cpu->cycles += 8;
 }
 void op_rlca(CPU *cpu, Bus *bus) {
 }
@@ -42,6 +46,9 @@ void op_inc_c(CPU *cpu, Bus *bus) {
 void op_dec_c(CPU *cpu, Bus *bus) {
 }
 void op_ld_c_n8(CPU *cpu, Bus *bus) {
+    u8 val = cpu_read(cpu, bus, cpu->PC);
+    cpu->BC.bytes.lo = val;
+    cpu->cycles += 8;
 }
 void op_rrca(CPU *cpu, Bus *bus) {
 }
@@ -62,6 +69,9 @@ void op_inc_d(CPU *cpu, Bus *bus) {
 void op_dec_d(CPU *cpu, Bus *bus) {
 }
 void op_ld_d_n8(CPU *cpu, Bus *bus) {
+    u8 val = cpu_read(cpu, bus, cpu->PC);
+    cpu->DE.bytes.hi = val;
+    cpu->cycles += 8;
 }
 void op_rla(CPU *cpu, Bus *bus) {
 }
@@ -80,6 +90,9 @@ void op_inc_e(CPU *cpu, Bus *bus) {
 void op_dec_e(CPU *cpu, Bus *bus) {
 }
 void op_ld_e_n8(CPU *cpu, Bus *bus) {
+    u8 val = cpu_read(cpu, bus, cpu->PC);
+    cpu->DE.bytes.lo = val;
+    cpu->cycles += 8;
 }
 void op_rra(CPU *cpu, Bus *bus) {
 }
@@ -100,6 +113,9 @@ void op_inc_h(CPU *cpu, Bus *bus) {
 void op_dec_h(CPU *cpu, Bus *bus) {
 }
 void op_ld_h_n8(CPU *cpu, Bus *bus) {
+    u8 val = cpu_read(cpu, bus, cpu->PC);
+    cpu->HL.bytes.hi = val;
+    cpu->cycles += 8;
 }
 void op_daa(CPU *cpu, Bus *bus) {
 }
@@ -118,6 +134,9 @@ void op_inc_l(CPU *cpu, Bus *bus) {
 void op_dec_l(CPU *cpu, Bus *bus) {
 }
 void op_ld_l_n8(CPU *cpu, Bus *bus) {
+    u8 val = cpu_read(cpu, bus, cpu->PC);
+    cpu->HL.bytes.lo = val;
+    cpu->cycles += 8;
 }
 void op_cpl(CPU *cpu, Bus *bus) {
 }
@@ -130,7 +149,7 @@ void op_ld_sp_n16(CPU *cpu, Bus *bus) {
 void op_ld_hld_ind_a(CPU *cpu, Bus *bus) {
 }
 void op_inc_sp(CPU *cpu, Bus *bus) {
-    cpu->SP.full++;
+    cpu->SP++;
     cpu->cycles += 8;
 }
 void op_inc_hl_ind(CPU *cpu, Bus *bus) {
@@ -148,7 +167,7 @@ void op_add_hl_sp(CPU *cpu, Bus *bus) {
 void op_ld_a_hld_ind(CPU *cpu, Bus *bus) {
 }
 void op_dec_sp(CPU *cpu, Bus *bus) {
-    cpu->SP.full--;
+    cpu->SP--;
     cpu->cycles += 8;
 }
 void op_inc_a(CPU *cpu, Bus *bus) {
@@ -156,106 +175,187 @@ void op_inc_a(CPU *cpu, Bus *bus) {
 void op_dec_a(CPU *cpu, Bus *bus) {
 }
 void op_ld_a_n8(CPU *cpu, Bus *bus) {
+    u8 val = cpu_read(cpu, bus, cpu->PC);
+    cpu->AF.bytes.lo = val;
+    cpu->cycles += 8;
 }
 void op_ccf(CPU *cpu, Bus *bus) {
 }
 
 // 0x40 - 0x7F (LD r1, r2)
 void op_ld_b_b(CPU *cpu, Bus *bus) {
+    cpu->cycles += 4;
 }
 void op_ld_b_c(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.hi = cpu->BC.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_b_d(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.hi = cpu->DE.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_b_e(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.hi = cpu->DE.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_b_h(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.hi = cpu->HL.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_b_l(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.hi = cpu->HL.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_b_hl_ind(CPU *cpu, Bus *bus) {
 }
 void op_ld_b_a(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.hi = cpu->AF.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_c_b(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.lo = cpu->BC.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_c_c(CPU *cpu, Bus *bus) {
+    cpu->cycles += 4;
 }
 void op_ld_c_d(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.lo = cpu->DE.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_c_e(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.lo = cpu->DE.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_c_h(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.lo = cpu->HL.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_c_l(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.lo = cpu->HL.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_c_hl_ind(CPU *cpu, Bus *bus) {
 }
 void op_ld_c_a(CPU *cpu, Bus *bus) {
+    cpu->BC.bytes.lo = cpu->AF.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_d_b(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.hi = cpu->BC.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_d_c(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.hi = cpu->BC.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_d_d(CPU *cpu, Bus *bus) {
+    cpu->cycles += 4;
 }
 void op_ld_d_e(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.hi = cpu->DE.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_d_h(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.hi = cpu->HL.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_d_l(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.hi = cpu->HL.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_d_hl_ind(CPU *cpu, Bus *bus) {
 }
 void op_ld_d_a(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.lo = cpu->AF.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_e_b(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.lo = cpu->BC.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_e_c(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.lo = cpu->BC.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_e_d(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.lo = cpu->DE.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_e_e(CPU *cpu, Bus *bus) {
+    cpu->cycles += 4;
 }
 void op_ld_e_h(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.lo = cpu->HL.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_e_l(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.lo = cpu->HL.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_e_hl_ind(CPU *cpu, Bus *bus) {
 }
 void op_ld_e_a(CPU *cpu, Bus *bus) {
+    cpu->DE.bytes.lo = cpu->AF.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_h_b(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.hi = cpu->BC.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_h_c(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.hi = cpu->BC.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_h_d(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.hi = cpu->DE.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_h_e(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.hi = cpu->DE.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_h_h(CPU *cpu, Bus *bus) {
+    cpu->cycles += 4;
 }
 void op_ld_h_l(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.hi = cpu->HL.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_h_hl_ind(CPU *cpu, Bus *bus) {
 }
 void op_ld_h_a(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.hi = cpu->AF.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_l_b(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.lo = cpu->BC.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_l_c(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.lo = cpu->BC.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_l_d(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.lo = cpu->DE.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_l_e(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.lo = cpu->DE.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_l_h(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.lo = cpu->HL.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_l_l(CPU *cpu, Bus *bus) {
+    cpu->cycles += 4;
 }
 void op_ld_l_hl_ind(CPU *cpu, Bus *bus) {
 }
 void op_ld_l_a(CPU *cpu, Bus *bus) {
+    cpu->HL.bytes.lo = cpu->AF.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_hl_ind_b(CPU *cpu, Bus *bus) {
 }
@@ -270,24 +370,39 @@ void op_ld_hl_ind_h(CPU *cpu, Bus *bus) {
 void op_ld_hl_ind_l(CPU *cpu, Bus *bus) {
 }
 void op_halt(CPU *cpu, Bus *bus) {
+    cpu->halted = true;
+    cpu->cycles += 4;
 }
 void op_ld_hl_ind_a(CPU *cpu, Bus *bus) {
 }
 void op_ld_a_b(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu->BC.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_a_c(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu->BC.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_a_d(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu->DE.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_a_e(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu->DE.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_a_h(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu->HL.bytes.hi;
+    cpu->cycles += 4;
 }
 void op_ld_a_l(CPU *cpu, Bus *bus) {
+    cpu->AF.bytes.hi = cpu->HL.bytes.lo;
+    cpu->cycles += 4;
 }
 void op_ld_a_hl_ind(CPU *cpu, Bus *bus) {
 }
 void op_ld_a_a(CPU *cpu, Bus *bus) {
+    cpu->cycles += 4;
 }
 
 // 0x80 - 0xBF (ALU)

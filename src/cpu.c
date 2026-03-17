@@ -20,11 +20,10 @@ void cpu_init(CPU *cpu){
 void cpu_step(CPU *cpu, Bus *bus){
     // Leggo il primo byte -> opcode
     u8 opcode = cpu_read(cpu, bus, cpu->PC);
-    cpu->PC++;
+    
     // Capisco cosa richiede l'opcode
     if(opcode == 0xCB){
         u8 opcode_cb = cpu_read(cpu, bus, cpu->PC);
-        cpu->PC++;
 
         if(!instructions_cb[opcode_cb]) return;
 
@@ -38,6 +37,7 @@ void cpu_step(CPU *cpu, Bus *bus){
 
 // Read
 u8 cpu_read(CPU *cpu, Bus *bus, u16 address){
+    cpu->PC++;
     return bus_read(bus, address);
 }
 
@@ -48,11 +48,8 @@ void cpu_write(CPU *cpu, Bus *bus, u16 address, u8 value){
 
 u16 cpu_read_word(CPU *cpu ,Bus *bus){
     u8 val_low = cpu_read(cpu, bus, cpu->PC);
-    cpu->PC++;
-
     u8 val_high = cpu_read(cpu, bus, cpu->PC);
-    cpu->PC++;
-
+   
     return (val_high << 8) | val_low;
 }
 
