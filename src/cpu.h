@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include "types.h"
+#include <stdbool.h>
 
 typedef struct Bus Bus;
 
@@ -42,9 +43,11 @@ typedef struct{
     u64 cycles;
     
     // Flag di Stato, informazioni interne dell'emulatore
-    u8 IME; // Interrupt Master Enable, interrutore globale per le interruzioni
-    u8 halted; // halt
-    u8 stopped; // per il risparmio energetico
+    bool IME; // Interrupt Master Enable, interrutore globale per le interruzioni
+    bool halted; // halt
+    bool stopped; // per il risparmio energetico
+
+    bool ime_pending;
 } CPU;
 
 void cpu_init(CPU *cpu);

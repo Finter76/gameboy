@@ -1,5 +1,6 @@
 #include "bus.h"
 #include "types.h"
+#include <stdio.h>
 
 u8 bus_read(Bus *bus, u16 address){
     if(!bus) return 0xFF; //Convenzione errori
@@ -27,7 +28,7 @@ u8 bus_read(Bus *bus, u16 address){
         //Zona proibita
         return 0xFF;
     } else if(address >= 0xFF00 && address <= 0xFF7F){ 
-        //Spazio di I/O da gestire a parte
+        //Spazio di I/O da gestire a parte 
         return bus->mmu->memory[address];
     } else if(address >= 0xFF80 && address <= 0xFFFE){
         //HRAM
@@ -67,6 +68,12 @@ void bus_write(Bus *bus, u16 address, u8 value){
     } else if(address >= 0xFF00 && address <= 0xFF7F){
         // I/O registers - da gestire a parte
         bus->mmu->memory[address] = value;
+        // Intercetta output seriale blargg
+        if(address == 0xFF02 && value == 0x81){
+            char c = (char)bus->mmu->memory[0xFF01];
+            printf("%c", c);
+            fflush(stdout);
+        }
     } else if(address >= 0xFF80 && address <= 0xFFFE){
         // HRAM
         bus->mmu->memory[address] = value;

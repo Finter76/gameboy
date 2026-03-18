@@ -3,6 +3,7 @@
 #include "bus.h"
 #include "opcodes.h"
 #include <string.h>
+#include <stdbool.h>
 
 void cpu_init(CPU *cpu){
     memset(cpu, 0, sizeof(CPU));
@@ -18,6 +19,11 @@ void cpu_init(CPU *cpu){
 
 // Fetch + Decode + Execute
 void cpu_step(CPU *cpu, Bus *bus){
+    // ritardo l'esecuzione di EI
+    if(cpu->ime_pending){
+        cpu->ime_pending = false;
+        cpu->IME = true;
+    }
     // Leggo il primo byte -> opcode
     u8 opcode = cpu_read(cpu, bus, cpu->PC++);
     // Capisco cosa richiede l'opcode
