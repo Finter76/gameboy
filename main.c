@@ -45,13 +45,10 @@ int main(int argc, char *argv[]) {
     fread(mmu.memory, 1, 0x8000, f);
     fclose(f);
 
-    // Esegui qualche istruzione e stampa i registri
-    for (int i = 0; i < 100; i++) {
-        printf("PC:%04X OP:%02X AF:%04X BC:%04X DE:%04X HL:%04X SP:%04X\n",
-            cpu.PC, bus_read(&bus, cpu.PC),cpu.AF.full, cpu.BC.full,
-            cpu.DE.full, cpu.HL.full, cpu.SP);
+    u64 max_cycles = 100000000; // 100 milioni di cicli
+    while (!cpu.halted && cpu.cycles < max_cycles) {
         cpu_step(&cpu, &bus);
     }
-
+    
     return 0;
 }

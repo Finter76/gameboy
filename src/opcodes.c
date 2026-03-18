@@ -2,6 +2,7 @@
 #include "types.h"
 #include "opcodes.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 // 0x00 - 0x0F
 void op_nop(CPU *cpu, Bus *bus){
@@ -238,30 +239,48 @@ void op_ld_h_n8(CPU *cpu, Bus *bus) {
     cpu->cycles += 8;
 }
 void op_daa(CPU *cpu, Bus *bus) {
-    bool correct_low  = (cpu->AF.bytes.hi & 0x0F) > 9 
-                        || (cpu->AF.bytes.lo & FLAG_H);
-    bool correct_high = cpu->AF.bytes.hi > 0x99    
-                        || (cpu->AF.bytes.lo & FLAG_C);
+    u8 a = cpu->AF.bytes.hi;
+    u8 f = cpu->AF.bytes.lo;
 
-    // Ultima operazione addizione
-    if(!(cpu->AF.bytes.lo & FLAG_N)){
-        if(correct_low){
-            cpu->AF.bytes.hi += 0x06;
-        } if(correct_high){
-            cpu->AF.bytes.hi += 0x60;
-            cpu->AF.bytes.lo |= FLAG_C;
+    u8 correction = 0;
+    bool setC = false;
+
+    if (!(f & FLAG_N)) {
+        // ADD
+        if ((f & FLAG_H) || (a & 0x0F) > 9)
+            correction |= 0x06;
+
+        if ((f & FLAG_C) || a > 0x99) {
+            correction |= 0x60;
+            setC = true;
         }
-    } else { // Ultima operazione sottrazione
-        if(correct_low){
-            cpu->AF.bytes.hi -= 0x06;
-        } if(correct_high){
-            cpu->AF.bytes.hi -= 0x60;
-        } 
+
+        a += correction;
+    } else {
+        // SUB
+        if (f & FLAG_H)
+            correction |= 0x06;
+        if (f & FLAG_C)
+            correction |= 0x60;
+
+        a -= correction;
     }
 
-    cpu->AF.bytes.lo &= ~FLAG_H;
-    if(cpu->AF.bytes.hi == 0) cpu->AF.bytes.lo |= FLAG_Z;
-    else cpu->AF.bytes.lo &= ~FLAG_Z; 
+    cpu->AF.bytes.hi = a;
+
+    // reset Z e H
+    cpu->AF.bytes.lo &= ~(FLAG_Z | FLAG_H);
+
+    if (a == 0)
+        cpu->AF.bytes.lo |= FLAG_Z;
+
+    if (!(f & FLAG_N)) {
+        if (setC)
+            cpu->AF.bytes.lo |= FLAG_C;
+        else
+            cpu->AF.bytes.lo &= ~FLAG_C;
+    }
+    // SUB: C invariato
 
     cpu->cycles += 4;
 }

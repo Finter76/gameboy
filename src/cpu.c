@@ -4,6 +4,7 @@
 #include "opcodes.h"
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 void cpu_init(CPU *cpu){
     memset(cpu, 0, sizeof(CPU));
@@ -63,7 +64,7 @@ void cpu_write_word(CPU* cpu, Bus *bus, u16 address, u16 value){
 }
 
 u8 cpu_alu(CPU *cpu, u8 a, u8 b, ALU_OP op) {
-    u16 result16;
+    u16 result16 = 0;
     u8 f = 0;
     u8 old_c = 0;
     u8 carry_in = 0;
